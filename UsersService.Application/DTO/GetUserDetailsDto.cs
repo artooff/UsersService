@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace UsersService.Application.DTO
 {
-    public class GetUserDetailsDto
-    {
-        public string Name { get; set; }
-        public int Gender { get; set; }
-        public DateTime? Birthday { get; set; }
-        public bool IsActive { get; set; }
-    }
+    public record GetUserDetailsDto(string Name,
+        int Gender,
+        DateTime? Birthday,
+        bool IsActive);
+
 }

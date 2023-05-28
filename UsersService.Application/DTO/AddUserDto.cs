@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace UsersService.Application.DTO
 {
-    public class AddUserDto
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-        public string Name { get; set; }
-        public int Gender { get; set; }
-        public DateTime? Birthday { get; set; }
-        public bool IsAdmin { get; set; }
-    }
+    public record AddUserDto(string Login,
+        string Password,
+        string Name,
+        int Gender,
+        DateTime? Birthday,
+        bool IsAdmin);
+
 }

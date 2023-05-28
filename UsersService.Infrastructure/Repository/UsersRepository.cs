@@ -1,82 +1,141 @@
-﻿
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.EntityFrameworkCore;
+using UsersService.Application.Common;
 using UsersService.Application.DTO;
+using UsersService.Application.Exceptions;
 using UsersService.Application.Interfaces;
+using UsersService.Domain.Models;
 using UsersService.Infrastructure.Persistance;
 
 namespace UsersService.Infrastructure.Repository
 {
     public class UsersRepository : IUsersRepository
     {
-        private readonly UsersDbContext _dbContext;
+        private readonly UsersDbContext _context;
 
         public UsersRepository(UsersDbContext dbContext)
         {
-            _dbContext = dbContext;
+            _context = dbContext;
         }
 
-        public Task<int> AddUser(AddUserDto userModel)
+        public async Task AddUser(User user)
         {
-            throw new NotImplementedException();
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
         }
 
-        public Task<int> DeleteUserFull(string login)
+        public async Task<List<User>> GetUsers()
         {
-            throw new NotImplementedException();
+            var users = await _context.Users
+                .OrderBy(x => x.CreatedOn)
+                .ToListAsync();
+
+            return users;
+        }
+        
+        public async Task<User> GetUser(string login)
+        {
+            var user = await _context.Users.Where(x => x.Login == login).SingleOrDefaultAsync();
+            return user;
         }
 
-        public Task<int> DeleteUserSoft(string login)
+        public async Task UpdateLogin(UpdateLoginDto model, UserWithPermissions currentUser)
         {
-            throw new NotImplementedException();
+            var userToUpdate = await _context.Users
+            .FirstOrDefaultAsync(user => user.Login == model.Login);
+
+            if (userToUpdate == null)
+            {
+                throw new NotFoundException(model.Login);
+            }
+            if (currentUser.IsAdmin || !userToUpdate.RevokedOn.HasValue)
+            {
+                userToUpdate.Login = model.NewLogin;
+                userToUpdate.ModifiedBy = model.ModifiedBy;
+                userToUpdate.ModifiedOn = model.ModifiedOn;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new AccessDeniedException(model.Login);
         }
 
-        public Task<List<GetUserDto>> GetActiveUsers()
+
+        public async Task UpdatePassword(UpdatePasswordDto model, UserWithPermissions currentUser)
         {
-            throw new NotImplementedException();
+            var userToUpdate = await _context.Users
+            .FirstOrDefaultAsync(user => user.Login == model.Login);
+
+            if (userToUpdate == null)
+            {
+                throw new NotFoundException(model.Login);
+            }
+            if (currentUser.IsAdmin || !userToUpdate.RevokedOn.HasValue)
+            {
+                userToUpdate.Password = model.NewPassword;
+                userToUpdate.ModifiedBy = model.ModifiedBy;
+                userToUpdate.ModifiedOn = model.ModifiedOn;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new AccessDeniedException(model.Login);
         }
 
-        public Task<GetUserDetailsDto> GetUserByLogin(string login)
+        public async Task UpdateDetails(string login, JsonPatchDocument model, UserWithPermissions currentUser)
         {
-            throw new NotImplementedException();
+            var userToUpdate = await _context.Users
+            .FirstOrDefaultAsync(user => user.Login == login);
+
+            if (userToUpdate == null)
+            {
+                throw new NotFoundException(login);
+            }
+            if (currentUser.IsAdmin || !userToUpdate.RevokedOn.HasValue)
+            {
+                model.ApplyTo(userToUpdate);
+                userToUpdate.ModifiedBy = currentUser.Login;
+                userToUpdate.ModifiedOn = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new AccessDeniedException(login);
         }
 
-        public Task<GetUserDetailsDto> GetUserByLoginAndPassword(string login, string password)
+        public async Task<int> DeleteUserFull(string login)
         {
-            throw new NotImplementedException();
+            var deleted = await _context.Users.Where(user => user.Login == login).ExecuteDeleteAsync();
+            return deleted;
         }
 
-        public Task<List<GetUserDto>> GetUsersByAge()
+        public async Task<int> DeleteUserSoft(string login, string revokedBy)
         {
-            throw new NotImplementedException();
+            var revoked = await _context.Users.
+                Where(user => user.Login == login).
+                ExecuteUpdateAsync(e =>
+                e.SetProperty(user => user.RevokedBy, revokedBy)
+                .SetProperty(user => user.RevokedOn, DateTime.UtcNow));
+            return revoked;
         }
 
-        public Task<int> RestoreUser(string login)
+        public async Task<int> RestoreUser(string login)
         {
-            throw new NotImplementedException();
+            string revokedBy = null;
+            DateTime? revokedOn = null;
+
+            var restored = await _context.Users.
+                Where(user => user.Login == login).
+                ExecuteUpdateAsync(e =>
+                e.SetProperty(user => user.RevokedBy, revokedBy)
+                .SetProperty(user => user.RevokedOn, revokedOn));
+            return restored;
         }
 
-        public Task<int> UpdateBirthday(DateTime birthday)
+        public async Task<bool> AdminExists()
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> UpdateGender(int gender)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> UpdateLogin(string login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> UpdateName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> UpdatePassword(string password)
-        {
-            throw new NotImplementedException();
+            var admin = await _context.Users.Where(user => user.IsAdmin).FirstOrDefaultAsync();
+            return admin != null;
         }
     }
 }

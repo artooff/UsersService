@@ -3,13 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersService.Domain", "UsersService.Domain\UsersService.Domain.csproj", "{1DC80472-AFDA-4DD9-9153-349E3F14369A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersService.Domain", "UsersService.Domain\UsersService.Domain.csproj", "{1DC80472-AFDA-4DD9-9153-349E3F14369A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersService.Infrastructure", "UsersService.Infrastructure\UsersService.Infrastructure.csproj", "{2EB42ED6-5A71-4B64-B086-8D7F52391EEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersService.Infrastructure", "UsersService.Infrastructure\UsersService.Infrastructure.csproj", "{2EB42ED6-5A71-4B64-B086-8D7F52391EEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersService.Application", "UsersService.Application\UsersService.Application.csproj", "{AA06C8CF-D458-4D0F-8416-778C553FC648}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersService.Application", "UsersService.Application\UsersService.Application.csproj", "{AA06C8CF-D458-4D0F-8416-778C553FC648}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1DC80472-AFDA-4DD9-9153-349E3F14369A} = {1DC80472-AFDA-4DD9-9153-349E3F14369A}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersService.Presentation", "UsersService.Presentation\UsersService.Presentation.csproj", "{9271F2B8-1D9A-49F8-A778-1A97F5B88E76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersService.Api", "UsersService.Api\UsersService.Api.csproj", "{9271F2B8-1D9A-49F8-A778-1A97F5B88E76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

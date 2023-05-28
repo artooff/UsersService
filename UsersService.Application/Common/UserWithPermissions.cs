@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UsersService.Application.DTO
+namespace UsersService.Application.Common
 {
-    public record GetUserDto(string Login);
+    public record UserWithPermissions(string Login, bool IsAdmin);
 }
