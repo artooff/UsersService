@@ -25,7 +25,8 @@ namespace UsersService.Api.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = (await _usersService.GetActiveUsers()).Value;
+            var result = await _usersService.GetActiveUsers();
+            var users = result.Value;
             return Ok(users);
         }
 
@@ -33,7 +34,8 @@ namespace UsersService.Api.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsersByAge([FromQuery] int age)
         {
-            var users = (await _usersService.GetUsersByAge(age)).Value;
+            var result = await _usersService.GetUsersByAge(age);
+            var users = result.Value;
             return Ok(users);
         }
 
